@@ -9,10 +9,14 @@ const getByFilter = async (filter) => {
   return user;
 };
 
+const getByUsername = async (username) => {
+  return await db("users").where("users.username", username).first();
+};
+
 async function getById(id) {
   return await db("users")
     //.select("user.id", "user.username")
-    .where("user.id", id)
+    .where("users.id", id)
     .first();
 }
 
@@ -25,12 +29,13 @@ async function add({ username, password }) {
     });
     created_user_id = id;
   });
-  return idyeGoreBul(created_user_id);
+  return getById(created_user_id);
 }
 
 module.exports = {
   getAll,
   getByFilter,
+  getByUsername,
   getById,
   add,
 };

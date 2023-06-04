@@ -7,8 +7,8 @@ const jwt = require("jsonwebtoken");
 const bcryptjs = require("bcryptjs");
 const userModel = require("../users/users-model");
 
-router.post("/register", checkPayload, async (req, res) => {
-  res.end("kayıt olmayı ekleyin, lütfen!");
+router.post("/register", checkPayload, async (req, res, next) => {
+  //res.end("kayıt olmayı ekleyin, lütfen!");
   /*
     EKLEYİN
     Uçnoktanın işlevselliğine yardımcı olmak için middlewarelar yazabilirsiniz.
@@ -47,9 +47,14 @@ router.post("/register", checkPayload, async (req, res) => {
   }
 });
 
-router.post("/login", checkUsername, checkPayload, (req, res) => {
-  res.end("girişi ekleyin, lütfen!");
-  /*
+router.post(
+  "/login",
+  checkUsername,
+  checkPayload,
+  //tokenValidation,
+  (req, res, next) => {
+    //res.end("girişi ekleyin, lütfen!");
+    /*
     EKLEYİN
     Uçnoktanın işlevselliğine yardımcı olmak için middlewarelar yazabilirsiniz.
 
@@ -72,19 +77,21 @@ router.post("/login", checkUsername, checkPayload, (req, res) => {
     4- "username" db de yoksa ya da "password" yanlışsa BAŞARISIZ giriş,
       şu mesajı içermelidir: "geçersiz kriterler".
   */
-  try {
-    let payload = {
-      subject: req.currentUser.id,
-      username: req.currentUser.username,
-    };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
-    res.json({
-      message: `welcome, ${req.currentUser.username}`,
-      token: token,
-    });
-  } catch (error) {
-    next(error);
+    try {
+      let payload = {
+        //subject: req.currentUser.id,
+        username: req.currentUser.username,
+        //password: req.currentUser.password,
+      };
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+      res.json({
+        message: `welcome, ${req.currentUser.username}`,
+        token: token,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 module.exports = router;

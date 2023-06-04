@@ -3,7 +3,7 @@ const bcryptjs = require("bcryptjs");
 
 const checkUsername = async (req, res, next) => {
   try {
-    let isExisting = await userModel.getByFilter(req.body.username);
+    let isExisting = await userModel.getByUsername(req.body.username);
     if (isExisting && isExisting.length > 0) {
       let currentUser = isExisting[0];
       let isPasswordMatch = bcryptjs.compareSync(
