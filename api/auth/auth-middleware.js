@@ -12,7 +12,7 @@ const checkUsername = async (req, res, next) => {
       );
       if (!isPasswordMatch) {
         res.status(401).json({
-          message: "Geçersiz kriter",
+          message: "Geçersiz kriterler",
         });
       } else {
         req.currentUser = currentUser;
@@ -20,7 +20,7 @@ const checkUsername = async (req, res, next) => {
       }
     } else {
       res.status(401).json({
-        message: "Geçersiz kriter",
+        message: "Geçersiz kriterler",
       });
     }
   } catch (error) {
@@ -32,7 +32,7 @@ const checkPayload = (req, res, next) => {
   try {
     let { username, password } = req.body;
     if (!username || !password) {
-      res.status(400).json({ messsage: "Eksik alan var" });
+      res.status(400).json({ messsage: "username ve password gereklidir" });
     } else {
       next();
     }

@@ -1,7 +1,14 @@
-const router = require('express').Router();
+const router = require("express").Router();
 
-router.post('/register', (req, res) => {
-  res.end('kayıt olmayı ekleyin, lütfen!');
+const { checkUsername, checkPayload } = require("./auth-middleware");
+const { tokenValidation } = require("../middleware/restricted");
+const { JWT_SECRET } = require("../secrets/secret");
+const jwt = require("jsonwebtoken");
+const bcryptjs = require("bcryptjs");
+const userModel = require("../users/users-model");
+
+router.post("/register", checkPayload, async (req, res) => {
+  res.end("kayıt olmayı ekleyin, lütfen!");
   /*
     EKLEYİN
     Uçnoktanın işlevselliğine yardımcı olmak için middlewarelar yazabilirsiniz.
@@ -27,10 +34,21 @@ router.post('/register', (req, res) => {
     4- Kullanıcı adı alınmışsa BAŞARISIZ kayıtta,
       şu mesajı içermelidir: "username alınmış".
   */
+  try {
+    let hashedPassword = bcryptjs.hashSync(req.body.password);
+    let userRequestModel = {
+      username: req.body.username,
+      password: hashedPassword,
+    };
+    const registeredUser = await userModel.add(userRequestModel);
+    res.status(201).json(registeredUser);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post('/login', (req, res) => {
-  res.end('girişi ekleyin, lütfen!');
+router.post("/login", checkUsername, checkPayload, (req, res) => {
+  res.end("girişi ekleyin, lütfen!");
   /*
     EKLEYİN
     Uçnoktanın işlevselliğine yardımcı olmak için middlewarelar yazabilirsiniz.
@@ -54,6 +72,19 @@ router.post('/login', (req, res) => {
     4- "username" db de yoksa ya da "password" yanlışsa BAŞARISIZ giriş,
       şu mesajı içermelidir: "geçersiz kriterler".
   */
+  try {
+    let payload = {
+      subject: req.currentUser.id,
+      username: req.currentUser.username,
+    };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+    res.json({
+      message: `welcome, ${req.currentUser.username}`,
+      token: token,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = router;
