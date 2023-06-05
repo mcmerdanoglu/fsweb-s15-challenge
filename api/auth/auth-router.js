@@ -1,11 +1,10 @@
 const router = require("express").Router();
-
 const { checkPayload, checkUser } = require("./auth-middleware");
-const { tokenValidation } = require("../middleware/restricted");
 const { JWT_SECRET } = require("../secrets/secret");
 const jwt = require("jsonwebtoken");
 const bcryptjs = require("bcryptjs");
 const userModel = require("../users/users-model");
+//const restricted = require("../middleware/restricted");
 
 router.post("/register", checkPayload, async (req, res, next) => {
   //res.end("kayıt olmayı ekleyin, lütfen!");

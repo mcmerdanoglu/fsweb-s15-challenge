@@ -1,11 +1,9 @@
 const { JWT_SECRET } = require("../secrets/secret");
-const userModel = require("../users/users-model");
 const jwt = require("jsonwebtoken");
-const bcryptjs = require("bcryptjs");
 
 /* EKLEYİN */
 
-const tokenValidation = (req, res, next) => {
+module.exports = (req, res, next) => {
   try {
     let authHeader = req.headers["authorization"];
     if (!authHeader) {
@@ -13,9 +11,9 @@ const tokenValidation = (req, res, next) => {
         message: "Token gereklidir",
       }); /* 2- Authorization headerında token yoksa, response body şu mesajı içermelidir: "token gereklidir".*/
     } else {
-      jwt.verify(authHeader, JWT_SECRET, (err, decodedToken) => {
+      jwt.verify(authHeader, JWT_SECRET, async (err, decodedToken) => {
         if (err) {
-          res.status(401).json({
+          await res.status(401).json({
             message: "token geçersizdir",
           }); /* 3- Authorization headerında geçersiz veya timeout olmuş token varsa, response body şu mesajı içermelidir: "token geçersizdir".*/
         } else {
@@ -28,12 +26,4 @@ const tokenValidation = (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-// module.exports = (req, res, next) => {
-//   next();
-// };
-
-module.exports = {
-  tokenValidation,
 };
