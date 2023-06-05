@@ -1,33 +1,6 @@
 const userModel = require("../users/users-model");
 const bcryptjs = require("bcryptjs");
 
-const checkUsername = async (req, res, next) => {
-  try {
-    let isExisting = await userModel.getByUsername(req.body.username);
-    if (isExisting && isExisting.length > 0) {
-      let currentUser = isExisting[0];
-      let isPasswordMatch = bcryptjs.compareSync(
-        req.body.password,
-        currentUser.password
-      );
-      if (!isPasswordMatch) {
-        res.status(401).json({
-          message: "Geçersiz kriterler",
-        });
-      } else {
-        req.currentUser = currentUser;
-        next();
-      }
-    } else {
-      res.status(401).json({
-        message: "Geçersiz kriterler",
-      });
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
 const checkPayload = (req, res, next) => {
   try {
     let { username, password } = req.body;
@@ -41,7 +14,29 @@ const checkPayload = (req, res, next) => {
   }
 };
 
+async function checkUser(req, res, next) {
+  try {
+    let isExistingUser = await userModel.getByUsername(req.body.username);
+    if (!isExistingUser) {
+      res.status(404).json({ message: "geçersiz kriterler" });
+    } else {
+      let isPasswordMatch = bcryptjs.compareSync(
+        req.body.password,
+        isExistingUser.password
+      );
+      if (isPasswordMatch) {
+        req.currentUser = isExistingUser;
+        next();
+      } else {
+        res.status(400).json({ message: "Şifre yanlış." });
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
-  checkUsername,
   checkPayload,
+  checkUser,
 };

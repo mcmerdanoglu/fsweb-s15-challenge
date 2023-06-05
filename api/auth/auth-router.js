@@ -1,6 +1,6 @@
 const router = require("express").Router();
 
-const { checkUsername, checkPayload } = require("./auth-middleware");
+const { checkPayload, checkUser } = require("./auth-middleware");
 const { tokenValidation } = require("../middleware/restricted");
 const { JWT_SECRET } = require("../secrets/secret");
 const jwt = require("jsonwebtoken");
@@ -47,14 +47,9 @@ router.post("/register", checkPayload, async (req, res, next) => {
   }
 });
 
-router.post(
-  "/login",
-  checkUsername,
-  checkPayload,
-  //tokenValidation,
-  (req, res, next) => {
-    //res.end("girişi ekleyin, lütfen!");
-    /*
+router.post("/login", checkPayload, checkUser, (req, res, next) => {
+  //res.end("girişi ekleyin, lütfen!");
+  /*
     EKLEYİN
     Uçnoktanın işlevselliğine yardımcı olmak için middlewarelar yazabilirsiniz.
 
@@ -77,21 +72,20 @@ router.post(
     4- "username" db de yoksa ya da "password" yanlışsa BAŞARISIZ giriş,
       şu mesajı içermelidir: "geçersiz kriterler".
   */
-    try {
-      let payload = {
-        //subject: req.currentUser.id,
-        username: req.currentUser.username,
-        //password: req.currentUser.password,
-      };
-      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
-      res.json({
-        message: `welcome, ${req.currentUser.username}`,
-        token: token,
-      });
-    } catch (error) {
-      next(error);
-    }
+  try {
+    let payload = {
+      id: req.currentUser.id,
+      username: req.currentUser.username,
+      // Bu bölümde kesinlikle password gönderilmeyecek!!!
+    };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+    res.json({
+      message: `welcome, ${req.currentUser.username}`,
+      token: token,
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 module.exports = router;

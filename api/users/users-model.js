@@ -4,13 +4,13 @@ async function getAll() {
   return await db("users");
 }
 
-const getByFilter = async (filter) => {
-  const user = await db("users").where(filter).first();
-  return user;
-};
+// const getByFilter = async (filter) => {
+//   const user = await db("users").where(filter).first();
+//   return user;
+// };
 
 const getByUsername = async (username) => {
-  return await db("users").where("users.username", username).first();
+  return await db("users").where("username", username).first();
 };
 
 async function getById(id) {
@@ -20,21 +20,14 @@ async function getById(id) {
     .first();
 }
 
-async function add({ username, password }) {
-  let created_user_id;
-  await db.transaction(async (trx) => {
-    const [id] = await trx("users").insert({
-      username,
-      password,
-    });
-    created_user_id = id;
-  });
-  return getById(created_user_id);
+async function add(insertedModel) {
+  await db("users").insert(insertedModel);
+  return getByUsername(insertedModel.username);
 }
 
 module.exports = {
   getAll,
-  getByFilter,
+  //getByFilter,
   getByUsername,
   getById,
   add,
